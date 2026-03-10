@@ -21,8 +21,12 @@ export class JobsController {
     const organizationId = req.user?.orgId;
     if (!organizationId) throw new UnauthorizedException('Missing organization context');
 
-    const take = Number(pageSize);
-    const skip = (Number(page) - 1) * take;
+    const parsedPage = Number(page);
+    const parsedPageSize = Number(pageSize);
+    const safePage = Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+    const safePageSize = Number.isInteger(parsedPageSize) && parsedPageSize > 0 ? Math.min(parsedPageSize, 100) : 25;
+    const take = safePageSize;
+    const skip = (safePage - 1) * take;
     return this.prisma.job.findMany({
       where: { organizationId },
       take,
