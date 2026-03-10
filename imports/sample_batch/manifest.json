@@ -1,0 +1,10 @@
+{
+  "batch_id": "demo-batch-001",
+  "organization_external_id": "org_default",
+  "files": [
+    "customers.csv"
+  ],
+  "dependency_order": [
+    "customers.csv"
+  ]
+}

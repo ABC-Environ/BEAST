@@ -1,0 +1,96 @@
+openapi: 3.1.0
+info:
+  title: BEAST CRM API
+  version: 0.1.0
+servers:
+  - url: http://localhost:3001
+paths:
+  /auth/login:
+    post:
+      summary: Login with email/password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Auth tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+  /auth/refresh:
+    post:
+      summary: Refresh access token
+      responses:
+        '200':
+          description: Refreshed tokens
+  /users:
+    get:
+      summary: List users
+      responses:
+        '200':
+          description: User list
+  /customers:
+    get:
+      summary: List customers
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1, default: 1 }
+        - in: query
+          name: pageSize
+          schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+      responses:
+        '200':
+          description: Customer list
+  /jobs:
+    get:
+      summary: List jobs
+      responses:
+        '200':
+          description: Job list
+  /imports/customers:
+    post:
+      summary: Import customers csv
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerImportRequest'
+      responses:
+        '200':
+          description: Import summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportSummary'
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8 }
+    AuthTokens:
+      type: object
+      properties:
+        accessToken: { type: string }
+        refreshToken: { type: string }
+    CustomerImportRequest:
+      type: object
+      required: [path]
+      properties:
+        path: { type: string }
+        dryRun: { type: boolean, default: false }
+    ImportSummary:
+      type: object
+      properties:
+        totalRows: { type: integer }
+        inserted: { type: integer }
+        updated: { type: integer }
+        rejected: { type: integer }

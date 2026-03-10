@@ -1,0 +1,344 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum JobStatus {
+  ASSIGNMENT
+  SCHEDULING
+  FIELD_EXECUTION
+  ESTIMATING
+  ESTIMATE_SUBMITTED
+  QA_REVIEW
+  CUSTOMER_CARRIER_APPROVAL
+  BILLING_READINESS
+  INVOICED
+  CLOSED
+  CUSTOMER_HOLD
+  CARRIER_HOLD
+}
+
+enum EstimateStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  externalId  String?
+  name        String
+  branches    Branch[]
+  users       User[]
+  customers   Customer[]
+  jobs        Job[]
+  featureFlags FeatureFlag[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@unique([externalId])
+}
+
+model Branch {
+  id             String   @id @default(cuid())
+  externalId     String?
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  name           String
+  timezone       String   @default("UTC")
+  users          User[]
+  jobs           Job[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  @@unique([organizationId, externalId])
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  permissions Json
+  users       User[]
+  createdAt   DateTime @default(now())
+}
+
+model User {
+  id             String   @id @default(cuid())
+  externalId     String?
+  organizationId String
+  branchId       String?
+  roleId         String
+  email          String
+  passwordHash   String
+  firstName      String
+  lastName       String
+  phone          String?
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  branch         Branch? @relation(fields: [branchId], references: [id])
+  role           Role @relation(fields: [roleId], references: [id])
+  audits         AuditLog[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  @@unique([organizationId, externalId])
+  @@unique([organizationId, email])
+}
+
+model Customer {
+  id             String   @id @default(cuid())
+  externalId     String
+  organizationId String
+  type           String
+  name           String
+  email          String?
+  phone          String?
+  billingAddress Json?
+  notes          String?
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  properties     Property[]
+  contacts       Contact[]
+  jobs           Job[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  @@unique([organizationId, externalId])
+}
+
+model Property {
+  id             String   @id @default(cuid())
+  externalId     String
+  organizationId String
+  customerId     String
+  address        Json
+  geoLat         Float?
+  geoLng         Float?
+  customer       Customer @relation(fields: [customerId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  jobs           Job[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  @@unique([organizationId, externalId])
+}
+
+model Contact {
+  id             String @id @default(cuid())
+  externalId     String
+  organizationId String
+  customerId     String
+  firstName      String
+  lastName       String
+  email          String?
+  phone          String?
+  role           String?
+  customer       Customer @relation(fields: [customerId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  @@unique([organizationId, externalId])
+}
+
+model Claim {
+  id             String @id @default(cuid())
+  externalId     String
+  organizationId String
+  claimNumber    String
+  lossType       String?
+  lossDate       DateTime?
+  notes          String?
+  jobs           Job[]
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  @@unique([organizationId, externalId])
+}
+
+model Job {
+  id             String @id @default(cuid())
+  externalId     String
+  organizationId String
+  branchId       String?
+  customerId     String
+  propertyId     String
+  claimId        String?
+  jobName        String
+  lossType       String?
+  priority       String?
+  status         JobStatus @default(ASSIGNMENT)
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  branch         Branch? @relation(fields: [branchId], references: [id])
+  customer       Customer @relation(fields: [customerId], references: [id])
+  property       Property @relation(fields: [propertyId], references: [id])
+  claim          Claim? @relation(fields: [claimId], references: [id])
+  phases         JobPhase[]
+  notes          Note[]
+  moistureLogs   MoistureLog[]
+  estimates      Estimate[]
+  approvals      Approval[]
+  equipmentDeployments EquipmentDeployment[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  @@unique([organizationId, externalId])
+}
+
+model JobPhase {
+  id         String @id @default(cuid())
+  externalId String
+  jobId       String
+  phaseType   String
+  status      String
+  scheduledStart DateTime?
+  scheduledEnd DateTime?
+  job        Job @relation(fields: [jobId], references: [id])
+  @@unique([jobId, externalId])
+}
+
+
+model Note {
+  id        String   @id @default(cuid())
+  jobId     String
+  body      String
+  createdAt DateTime @default(now())
+  job       Job      @relation(fields: [jobId], references: [id])
+}
+
+model MoistureLog {
+  id          String @id @default(cuid())
+  externalId  String
+  jobId       String
+  readingAt   DateTime
+  room        String?
+  surface     String?
+  initial     Float?
+  ambientTemp Float?
+  relativeHumidity Float?
+  grainDepression Float?
+  notes       String?
+  job         Job @relation(fields: [jobId], references: [id])
+  @@unique([jobId, externalId])
+}
+
+model Equipment {
+  id          String @id @default(cuid())
+  externalId  String
+  organizationId String
+  type        String
+  model       String?
+  serialNumber String?
+  status      String
+  deployments EquipmentDeployment[]
+  organization Organization @relation(fields: [organizationId], references: [id])
+  @@unique([organizationId, externalId])
+}
+
+model EquipmentDeployment {
+  id          String @id @default(cuid())
+  externalId  String
+  jobId       String
+  equipmentId String
+  placedAt    DateTime
+  pickedUpAt  DateTime?
+  roomArea    String?
+  notes       String?
+  job         Job @relation(fields: [jobId], references: [id])
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  @@unique([jobId, externalId])
+}
+
+model Estimate {
+  id          String @id @default(cuid())
+  externalId  String
+  jobId       String
+  version     Int
+  status      EstimateStatus @default(DRAFT)
+  subtotal    Decimal @db.Decimal(12, 2)
+  tax         Decimal @db.Decimal(12, 2)
+  total       Decimal @db.Decimal(12, 2)
+  currency    String @default("USD")
+  lines       EstimateLine[]
+  job         Job @relation(fields: [jobId], references: [id])
+  @@unique([jobId, externalId])
+}
+
+model EstimateLine {
+  id          String @id @default(cuid())
+  externalId  String
+  estimateId  String
+  code        String
+  description String
+  qty         Decimal @db.Decimal(12, 2)
+  unit        String
+  unitPrice   Decimal @db.Decimal(12, 2)
+  taxRate     Decimal @db.Decimal(5, 2)
+  costCode    String?
+  notes       String?
+  estimate    Estimate @relation(fields: [estimateId], references: [id])
+  @@unique([estimateId, externalId])
+}
+
+model Approval {
+  id          String @id @default(cuid())
+  externalId  String
+  jobId       String
+  approverType String
+  approverName String
+  approverEmail String?
+  approvedAt  DateTime?
+  status      String
+  method      String?
+  job         Job @relation(fields: [jobId], references: [id])
+  @@unique([jobId, externalId])
+}
+
+model Invoice {
+  id          String @id @default(cuid())
+  jobId       String
+  number      String @unique
+  amount      Decimal @db.Decimal(12, 2)
+  status      String
+  issuedAt    DateTime?
+  job         Job      @relation(fields: [jobId], references: [id])
+}
+
+model FeatureFlag {
+  id             String @id @default(cuid())
+  organizationId String?
+  key            String
+  enabled        Boolean @default(false)
+  rolloutPercent Int @default(0)
+  rolesAllowlist String[]
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  @@unique([organizationId, key])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  organizationId String?
+  actorUserId String?
+  entityType  String
+  entityId    String
+  action      String
+  reason      String?
+  before      Json?
+  after       Json?
+  createdAt   DateTime @default(now())
+  actor       User? @relation(fields: [actorUserId], references: [id])
+}
+
+model ImportBatch {
+  id          String @id @default(cuid())
+  organizationId String
+  source      String
+  status      String
+  startedAt   DateTime @default(now())
+  finishedAt  DateTime?
+  rows        ImportRow[]
+}
+
+model ImportRow {
+  id          String @id @default(cuid())
+  batchId     String
+  fileName    String
+  lineNumber  Int
+  externalId  String?
+  status      String
+  error       String?
+  payload     Json
+  batch       ImportBatch @relation(fields: [batchId], references: [id])
+}
