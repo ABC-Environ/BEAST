@@ -1,0 +1,103 @@
+name: Issue governance normalizer
+
+on:
+  issues:
+    types: [opened, edited, reopened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Normalize labels and milestone from issue form
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const body = issue.body || "";
+
+            function escapeRegExp(value) {
+              return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            }
+
+            function readSection(label) {
+              const pattern = new RegExp(`(?:^|\\n)###\\s+${escapeRegExp(label)}\\s*\\n\\n([\\s\\S]*?)(?=\\n###\\s+|$)`, "m");
+              const match = body.match(pattern);
+              if (!match) return null;
+              return match[1].trim();
+            }
+
+            const selectedFamily = readSection("Issue family");
+            const selectedSlice = readSection("Vertical slice");
+            const selectedRelease = readSection("Release target");
+            const selectedMilestone = readSection("Milestone");
+            const selectedSeverity = readSection("Severity");
+
+            const sliceMap = {
+              "Intake": "slice:intake",
+              "Workstream": "slice:workstream",
+              "Evidence": "slice:evidence",
+              "Estimate": "slice:estimate",
+              "QA": "slice:qa",
+              "Billing": "slice:billing",
+              "Blockers": "slice:blockers",
+              "Cutover": "slice:cutover"
+            };
+
+            const familyMap = {
+              "Schema": "type:schema",
+              "Command Guard": "type:command-guard",
+              "Projector": "type:projector",
+              "UI": "type:ui",
+              "Permission": "type:permission",
+              "Seed Proof": "type:seed-proof",
+              "Launch Control": "type:launch-control"
+            };
+
+            const controlledPrefixes = ["slice:", "type:", "release:"];
+            const controlledExact = new Set(["severity:blocker"]);
+
+            const currentLabels = issue.labels.map(l => typeof l === "string" ? l : l.name);
+            const preservedLabels = currentLabels.filter(name => {
+              if (controlledExact.has(name)) return false;
+              return !controlledPrefixes.some(prefix => name.startsWith(prefix));
+            });
+
+            const nextLabels = [...preservedLabels];
+
+            if (sliceMap[selectedSlice]) nextLabels.push(sliceMap[selectedSlice]);
+            if (familyMap[selectedFamily]) nextLabels.push(familyMap[selectedFamily]);
+            if (selectedRelease === "MVP") nextLabels.push("release:mvp");
+            if (selectedRelease === "v1.1") nextLabels.push("release:v1.1");
+            if (selectedSeverity === "Blocker") nextLabels.push("severity:blocker");
+
+            const deduped = [...new Set(nextLabels)];
+
+            await github.rest.issues.setLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              labels: deduped
+            });
+
+            if (selectedMilestone) {
+              const milestones = await github.paginate(github.rest.issues.listMilestones, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: "all",
+                per_page: 100
+              });
+
+              const match = milestones.find(m => m.title === selectedMilestone);
+              if (match) {
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  milestone: match.number
+                });
+              }
+            }

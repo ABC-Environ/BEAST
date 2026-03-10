@@ -1,0 +1,175 @@
+name: MVP work item
+description: Create a governed MVP implementation issue with all required sections.
+title: "[MVP] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for governed work.
+
+        Repo automation will normalize labels and milestones.
+        Project membership is expected to come from built-in auto-add on `https://github.com/orgs/ABC-Environ/projects/1` unless `GH_PROJECT_MODE=workflow-add`.
+  - type: dropdown
+    id: issue_family
+    attributes:
+      label: Issue family
+      options:
+        - Schema
+        - Command Guard
+        - Projector
+        - UI
+        - Permission
+        - Foundation
+    validations:
+      required: true
+  - type: dropdown
+    id: vertical_slice
+    attributes:
+      label: Vertical slice
+      options:
+        - Intake
+        - Workstream
+        - Evidence
+        - Estimate
+        - QA
+        - Billing
+        - Blockers
+        - Cutover
+        - Foundation
+    validations:
+      required: true
+  - type: dropdown
+    id: milestone
+    attributes:
+      label: Milestone
+      options:
+        - Milestone 1
+        - Milestone 2
+        - Milestone 3
+        - Milestone 4
+        - Milestone 5
+        - Milestone 6
+        - Milestone 7
+        - Milestone 8
+        - Milestone 9
+    validations:
+      required: true
+  - type: dropdown
+    id: release_target
+    attributes:
+      label: Release target
+      options:
+        - MVP
+        - v1.1
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Normal
+        - Blocker
+    validations:
+      required: true
+  - type: input
+    id: epic_reference
+    attributes:
+      label: Epic reference
+      placeholder: "Epic 1 — Intake Review + Job File Creation"
+    validations:
+      required: true
+  - type: textarea
+    id: short_goal
+    attributes:
+      label: Short goal
+    validations:
+      required: true
+  - type: textarea
+    id: scope_in
+    attributes:
+      label: Scope in
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: scope_out
+    attributes:
+      label: Scope out
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: commands_affected
+    attributes:
+      label: Commands affected
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: guards_affected
+    attributes:
+      label: Guards affected
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: schema_changes
+    attributes:
+      label: Schema changes
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: projections_affected
+    attributes:
+      label: Projections affected
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: permissions_affected
+    attributes:
+      label: Permissions affected
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: seeded_scenarios_affected
+    attributes:
+      label: Seeded scenarios affected
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: blocked_paths_affected
+    attributes:
+      label: Blocked paths affected
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance criteria
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: rollout_notes
+    attributes:
+      label: Rollout notes
+      render: markdown
+    validations:
+      required: true
+  - type: checkboxes
+    id: governance_ack
+    attributes:
+      label: Governance checks
+      options:
+        - label: This issue will not introduce a direct live-state mutation path outside the command spine.
+          required: true
+        - label: This issue includes blocked-path behavior, not only happy-path behavior.
+          required: true
+        - label: This issue is small enough to be implemented and reviewed as one contractor-sized build unit.
+          required: true
