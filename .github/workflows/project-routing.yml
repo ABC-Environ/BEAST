@@ -10,18 +10,25 @@ permissions:
 
 jobs:
   add_to_project:
-    if: ${{ vars.GH_PROJECT_MODE == 'workflow-add' && secrets.PROJECT_AUTOMATION_TOKEN != '' }}
+    if: ${{ vars.GH_PROJECT_MODE == 'workflow-add' }}
     runs-on: ubuntu-latest
+    env:
+      PROJECT_AUTOMATION_TOKEN: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
     steps:
       - name: Setup pnpm
+        if: ${{ env.PROJECT_AUTOMATION_TOKEN != '' }}
         uses: pnpm/action-setup@v4
         with:
           version: 10.32.0
       - name: Add issue to GitHub Project 1
+        if: ${{ env.PROJECT_AUTOMATION_TOKEN != '' }}
         uses: actions/add-to-project@v1
         with:
           project-url: https://github.com/orgs/ABC-Environ/projects/1
-          github-token: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
+          github-token: ${{ env.PROJECT_AUTOMATION_TOKEN }}
+      - name: Skip project add when token is not configured
+        if: ${{ env.PROJECT_AUTOMATION_TOKEN == '' }}
+        run: echo "PROJECT_AUTOMATION_TOKEN is not set; skipping workflow-based project routing."
 
   noop_for_builtin_auto_add:
     if: ${{ vars.GH_PROJECT_MODE != 'workflow-add' }}
