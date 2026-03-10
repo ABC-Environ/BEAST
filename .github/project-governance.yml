@@ -1,0 +1,57 @@
+project:
+  owner_type: organization
+  owner_login: ABC-Environ
+  project_number: 1
+  project_url: https://github.com/orgs/ABC-Environ/projects/1
+  mode: builtin-auto-add   # builtin-auto-add | workflow-add
+
+repository:
+  full_name: "~/Desktop/ABC-Environ-ABC"
+
+project_fields:
+  status_field_name: Status
+  recommended_default_status: Contract Locked
+
+current_builtin_auto_add:
+  filter: 'is:issue,pr is:open label:bug'
+
+recommended_builtin_auto_add_filters:
+  - repository: "~/Desktop/ABC-Environ-ABC"
+    filter: 'is:issue is:open label:release:mvp'
+  - repository: "~/Desktop/ABC-Environ-ABC"
+    filter: 'is:issue is:open label:release:v1.1'
+
+label_taxonomy:
+  slices:
+    - slice:intake
+    - slice:workstream
+    - slice:evidence
+    - slice:estimate
+    - slice:qa
+    - slice:billing
+    - slice:blockers
+    - slice:cutover
+  types:
+    - type:schema
+    - type:command-guard
+    - type:projector
+    - type:ui
+    - type:permission
+    - type:seed-proof
+    - type:launch-control
+  releases:
+    - release:mvp
+    - release:v1.1
+  severities:
+    - severity:blocker
+
+milestones:
+  - Milestone 1
+  - Milestone 2
+  - Milestone 3
+  - Milestone 4
+  - Milestone 5
+  - Milestone 6
+  - Milestone 7
+  - Milestone 8
+  - Milestone 9

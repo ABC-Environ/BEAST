@@ -1,0 +1,27 @@
+name: Project routing
+
+on:
+  issues:
+    types: [opened, edited, reopened, labeled]
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  add_to_project:
+    if: ${{ vars.GH_PROJECT_MODE == 'workflow-add' && secrets.PROJECT_AUTOMATION_TOKEN != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add issue to GitHub Project 1
+        uses: actions/add-to-project@v1
+        with:
+          project-url: https://github.com/orgs/ABC-Environ/projects/1
+          github-token: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
+
+  noop_for_builtin_auto_add:
+    if: ${{ vars.GH_PROJECT_MODE != 'workflow-add' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Leave Project routing to built-in auto-add rules
+        run: echo "GH_PROJECT_MODE is not workflow-add; relying on built-in Project auto-add for https://github.com/orgs/ABC-Environ/projects/1."

@@ -1,0 +1,160 @@
+name: Seed proof
+description: Create a governed seed proof issue for happy-path and blocked-path validation.
+title: "[Seed Proof] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for governed work.
+
+        Repo automation will normalize labels and milestones.
+        Project membership is expected to come from built-in auto-add on `https://github.com/orgs/ABC-Environ/projects/1` unless `GH_PROJECT_MODE=workflow-add`.
+  - type: dropdown
+    id: issue_family
+    attributes:
+      label: Issue family
+      options:
+        - Seed Proof
+    validations:
+      required: true
+  - type: dropdown
+    id: vertical_slice
+    attributes:
+      label: Vertical slice
+      options:
+        - Intake
+        - Workstream
+        - Evidence
+        - Estimate
+        - QA
+        - Billing
+        - Blockers
+        - Cutover
+    validations:
+      required: true
+  - type: dropdown
+    id: milestone
+    attributes:
+      label: Milestone
+      options:
+        - Milestone 1
+        - Milestone 2
+        - Milestone 3
+        - Milestone 4
+        - Milestone 5
+        - Milestone 6
+        - Milestone 7
+        - Milestone 8
+        - Milestone 9
+    validations:
+      required: true
+  - type: dropdown
+    id: release_target
+    attributes:
+      label: Release target
+      options:
+        - MVP
+        - v1.1
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Normal
+        - Blocker
+    validations:
+      required: true
+  - type: input
+    id: scenario_name
+    attributes:
+      label: Scenario name
+    validations:
+      required: true
+  - type: textarea
+    id: scope_in
+    attributes:
+      label: Scope in
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: scope_out
+    attributes:
+      label: Scope out
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: commands_affected
+    attributes:
+      label: Commands affected
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: guards_affected
+    attributes:
+      label: Guards affected
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: schema_changes
+    attributes:
+      label: Schema changes
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: projections_affected
+    attributes:
+      label: Projections affected
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: permissions_affected
+    attributes:
+      label: Permissions affected
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: seeded_scenarios_affected
+    attributes:
+      label: Seeded scenarios affected
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: blocked_paths_affected
+    attributes:
+      label: Blocked paths affected
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance criteria
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: rollout_notes
+    attributes:
+      label: Rollout notes
+      render: markdown
+    validations:
+      required: true
+  - type: checkboxes
+    id: seed_proof_ack
+    attributes:
+      label: Seed proof checks
+      options:
+        - label: This issue proves both happy-path and blocked-path behavior for the slice.
+          required: true
+        - label: This issue includes expected audit and projection assertions, not only execution steps.
+          required: true
