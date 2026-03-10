@@ -7,8 +7,4 @@ export class CustomerImportRequestDto {
   @IsOptional()
   @IsBoolean()
   dryRun?: boolean;
-
-  @IsOptional()
-  @IsString()
-  organizationId?: string;
 }
