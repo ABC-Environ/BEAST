@@ -7,8 +7,10 @@ import { PrismaService } from '../database/prisma.service';
 export class AuthService {
   constructor(private readonly prisma: PrismaService, private readonly jwt: JwtService) {}
 
-  async login(email: string, password: string) {
-    const user = await this.prisma.user.findFirst({ where: { email } });
+  async login(organizationId: string, email: string, password: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { organizationId_email: { organizationId, email } },
+    });
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
     const valid = await argon2.verify(user.passwordHash, password);

@@ -26,11 +26,9 @@ export class CustomersImporterService {
     const csv = readFileSync(path, 'utf8');
     const rows = parse(csv, { columns: true, skip_empty_lines: true, trim: true }) as CustomerCsvRow[];
 
-    const org =
-      organizationId ||
-      (await this.prisma.organization.findFirst({ select: { id: true } }))?.id;
+    if (!organizationId) throw new Error('organizationId is required');
 
-    if (!org) throw new Error('organizationId is required when no organization exists');
+    const org = organizationId;
 
     const rejects: Array<{ line: number; external_id?: string; errors: string[] }> = [];
     let inserted = 0;
