@@ -1,0 +1,4 @@
+external_id,type,name,email,phone,billing_address_line1,billing_address_line2,billing_city,billing_state,billing_postal_code,billing_country,notes
+cust_001,Individual,Jane Doe,jane@example.com,5551112222,100 Main St,,Denver,CO,80202,US,VIP
+cust_002,Company,Acme Property Mgmt,ops@acme.com,5559990000,200 Broad St,Suite 12,Seattle,WA,98101,US,Commercial account
+,Individual,Bad Row,bad@example.com,555,1 x,,x,CO,80000,US,Missing external id

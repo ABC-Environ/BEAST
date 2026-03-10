@@ -1,0 +1,3 @@
+-- Initial migration placeholder.
+-- Generate concrete SQL with:
+-- pnpm --filter @beast/api prisma:migrate --name init
